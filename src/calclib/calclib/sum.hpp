@@ -1,3 +1,8 @@
 #pragma once
 
-float sum_floats(float, float);
+namespace calclib {
+
+float sum_floats(float a, float b);
+
+} // namespace calclib
+
