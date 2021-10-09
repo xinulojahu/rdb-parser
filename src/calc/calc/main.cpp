@@ -1,27 +1,20 @@
 #include <calclib/sum.hpp>
 
-#include <cxxopts.hpp>
+#include "CLI/App.hpp"
+#include "CLI/Config.hpp"
+#include "CLI/Formatter.hpp"
 
 #include <iostream>
 
 int main(int argc, char **argv) {
-    cxxopts::Options options("sum");
+    CLI::App app{"Sum of two floats"};
 
-    // clang-format off
-    options.add_options()
-        ("first", "first param", cxxopts::value<float>())
-        ("second", "second param", cxxopts::value<float>());
-    // clang-format on
+    float first = 0;
+    float second = 0;
+    app.add_option("-f,--first", first, "First float");
+    app.add_option("-s,--second", second, "Second float");
 
-    const auto result = options.parse(argc, argv);
-
-    if ((result.count("first") != 1) || (result.count("second") != 1)) {
-        std::cout << options.help() << "\n";
-        return 0;
-    }
-
-    const auto first = result["first"].as<float>();
-    const auto second = result["second"].as<float>();
+    CLI11_PARSE(app, argc, argv);
 
     std::cout << calclib::sum_floats(first, second) << std::endl;
     return 0;

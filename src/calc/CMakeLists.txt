@@ -15,5 +15,5 @@ target_link_libraries(
     ${target_name}
     PRIVATE
         calclib
-        cxxopts
+        CLI11::CLI11
 )
