@@ -8,7 +8,7 @@ set_compile_options(${target_name})
 target_sources(
     ${target_name}
     PRIVATE
-        calc/main.cpp
+        main.cpp
 )
 
 target_link_libraries(
