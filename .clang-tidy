@@ -11,7 +11,7 @@ Checks: >
   -cppcoreguidelines-owning-memory,
   -google-runtime-references,
   -cert-err58-cpp,
-  -cppcoreguidelines-avoid-non-const-global-variables
+  -cppcoreguidelines-avoid-non-const-global-variables,
   -bugprone-exception-escape
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
