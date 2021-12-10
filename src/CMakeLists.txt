@@ -1,2 +1,1 @@
-add_subdirectory(calclib)
-add_subdirectory(calc)
+add_subdirectory(librdb)

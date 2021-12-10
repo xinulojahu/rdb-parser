@@ -1,4 +1,4 @@
-set(target_name calclib)
+set(target_name librdb_lexer)
 
 add_library(${target_name} STATIC)
 
@@ -8,21 +8,24 @@ set_compile_options(${target_name})
 target_sources(
     ${target_name}
     PRIVATE
-        sum.hpp
-        sum.cpp
+        Lexer.cpp
+        Lexer.hpp
+        Location.hpp
+        Token.cpp
+        Token.hpp
 )
 
 target_include_directories(
     ${target_name}
     PUBLIC
-        ${PROJECT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_LIST_DIR}
 )
 
 target_link_libraries(
     ${target_name}
 )
 
-set(tests_name calctest)
+set(tests_name librdb_lexertest)
 add_executable(${tests_name})
 
 set_compile_options(${tests_name})
@@ -30,7 +33,7 @@ set_compile_options(${tests_name})
 target_sources(
     ${tests_name}
     PRIVATE
-        sum.test.cpp
+        LexerTests.cpp
 )
 
 target_include_directories(
@@ -42,7 +45,7 @@ target_include_directories(
 target_link_libraries(
     ${tests_name}
     PRIVATE
-        calclib
+        librdb_lexer
         gtest_main
 )
 
