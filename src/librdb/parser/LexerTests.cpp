@@ -3,10 +3,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
-
-TEST(LexerSuite, LexerTest) {
-    EXPECT_EQ(40 + 2, 42);
-}
+#include <variant>
 
 std::string get_tokens(const std::string_view input) {
     rdb::parser::Lexer lexer(input);
@@ -115,7 +112,7 @@ TEST(LexerSuite, StringTest) {
         "\"str1\"\n"
         "\"str2\n"
         "str3\"\n"
-        "\"str4 1231 INSERT 2.1\" 1231 ISERT 2.1"
+        "\"str4 1231 INSERT 2.1\" 1231 INSERT 2.1"
 
     );
 
@@ -126,9 +123,9 @@ TEST(LexerSuite, StringTest) {
         "Unknown '\"' Loc=5:3\n"
         "String '\"str4 1231 INSERT 2.1\"' Loc=1:4\n"
         "Int '1231' Loc=24:4\n"
-        "Id 'ISERT' Loc=29:4\n"
-        "Real '2.1' Loc=35:4\n"
-        "Eof '<EOF>' Loc=38:4\n";
+        "KwInsert 'INSERT' Loc=29:4\n"
+        "Real '2.1' Loc=36:4\n"
+        "Eof '<EOF>' Loc=39:4\n";
 
     EXPECT_EQ(expcted_token, tokens);
 }

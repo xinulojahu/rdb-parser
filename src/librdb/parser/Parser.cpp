@@ -2,6 +2,7 @@
 #include <librdb/parser/Parser.hpp>
 #include <librdb/parser/Statements.hpp>
 
+#include <cassert>
 #include <charconv>
 #include <memory>
 #include <sstream>
@@ -116,7 +117,29 @@ InsertStatementPtr Parser::parse_insert_table_statement() {
 }
 
 Value Parser::parse_value() {
-    return {};
+    const Token token = lexer_.peek();
+    char* end = nullptr;
+    const int base = 10;
+    Value val;
+    if (token.type() == Token::Kind::Int) {
+        lexer_.get();
+        val = int32_t(std::strtol(token.lexema().data(), &end, base));
+        assert(token.lexema().data() + token.lexema().size() == end);
+        return val;
+    } else if (token.type() == Token::Kind::Real) {
+        lexer_.get();
+        val = std::strtof(lexer_.get().lexema().data(), &end);
+        assert(token.lexema().data() + token.lexema().size() == end);
+        return val;
+    } else if (token.type() == Token::Kind::String) {
+        lexer_.get();
+        val = lexer_.get().lexema();
+        return val;
+    }
+
+    throw SyntaxError(
+        "Expeted int, float or string, got " +
+        std::string(kind_to_str(token.type())));
 }
 
 }  // namespace rdb::parser
