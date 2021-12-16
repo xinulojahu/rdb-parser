@@ -42,6 +42,8 @@ std::string_view kind_to_str(Token::Kind token_kind) {
             return "Id";
         case Token::Kind::Int:
             return "Int";
+        case Token::Kind::Real:
+            return "Real";
         case Token::Kind::String:
             return "String";
         case Token::Kind::Eof:

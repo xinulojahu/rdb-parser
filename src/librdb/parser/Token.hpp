@@ -23,6 +23,7 @@ class Token {
         RParen,
         Id,
         Int,
+        Real,
         String,
         Eof,
         Unknown,

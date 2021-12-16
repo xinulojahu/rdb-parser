@@ -91,3 +91,21 @@ TEST(LexerSuite, IntTest) {
 
     EXPECT_EQ(expcted_token, tokens);
 }
+
+TEST(LexerSuite, RealTest) {
+    auto tokens = get_tokens("1. -312.123l2.1 +0.0123 3.5.31.3");
+
+    const std::string expcted_token =
+        "Real '1.' Loc=1:1\n"
+        "Real '-312.123' Loc=4:1\n"
+        "Id 'l2' Loc=12:1\n"
+        "Unknown '.' Loc=14:1\n"
+        "Int '1' Loc=15:1\n"
+        "Real '+0.0123' Loc=17:1\n"
+        "Real '3.5' Loc=25:1\n"
+        "Unknown '.' Loc=28:1\n"
+        "Real '31.3' Loc=29:1\n"
+        "Eof '<EOF>' Loc=33:1\n";
+
+    EXPECT_EQ(expcted_token, tokens);
+}

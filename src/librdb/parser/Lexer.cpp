@@ -136,6 +136,14 @@ Token Lexer::get_number() {
         }
     }
 
+    if (peek_char() == '.') {
+        get_char();
+        while ((!eof()) && (isdigit(peek_char()) != 0)) {
+            get_char();
+        }
+        return make_token(Token::Kind::Real, begin);
+    }
+
     return make_token(Token::Kind::Int, begin);
 }
 
