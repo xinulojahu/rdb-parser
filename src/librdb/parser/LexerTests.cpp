@@ -109,3 +109,27 @@ TEST(LexerSuite, RealTest) {
 
     EXPECT_EQ(expcted_token, tokens);
 }
+
+TEST(LexerSuite, StringTest) {
+    auto tokens = get_tokens(
+        "\"str1\"\n"
+        "\"str2\n"
+        "str3\"\n"
+        "\"str4 1231 INSERT 2.1\" 1231 ISERT 2.1"
+
+    );
+
+    const std::string expcted_token =
+        "String '\"str1\"' Loc=1:1\n"
+        "Unknown '\"str2' Loc=1:2\n"
+        "Id 'str3' Loc=1:3\n"
+        "Unknown '\"' Loc=5:3\n"
+        "String '\"str4 1231 INSERT 2.1\"' Loc=1:4\n"
+        "Int '1231' Loc=24:4\n"
+        "Id 'ISERT' Loc=29:4\n"
+        "Real '2.1' Loc=35:4\n"
+        "Eof '<EOF>' Loc=38:4\n";
+
+    EXPECT_EQ(expcted_token, tokens);
+}
+
