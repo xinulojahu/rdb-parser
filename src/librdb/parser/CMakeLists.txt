@@ -11,6 +11,11 @@ target_sources(
         Lexer.cpp
         Lexer.hpp
         Location.hpp
+        Parser.cpp
+        Parser.hpp
+        Script.hpp
+        Statements.cpp
+        Statements.hpp
         Token.cpp
         Token.hpp
 )
@@ -18,7 +23,7 @@ target_sources(
 target_include_directories(
     ${target_name}
     PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}
+        ${PROJECT_SOURCE_DIR}/src
 )
 
 target_link_libraries(

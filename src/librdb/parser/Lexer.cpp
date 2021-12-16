@@ -1,18 +1,14 @@
-#include <Lexer.hpp>
-#include <Token.hpp>
 #include <cassert>
 #include <cctype>
+#include <librdb/parser/Lexer.hpp>
+#include <librdb/parser/Token.hpp>
 #include <optional>
 #include <string_view>
 #include <unordered_map>
 
 namespace rdb::parser {
 
-Token Lexer ::get() {
-    if (eof()) {
-        return Token(Token::Kind::Eof, "<EOF>", location_);
-    }
-
+Token Lexer::get() {
     if (next_token_) {
         Token token(*next_token_);
         next_token_.reset();
@@ -21,18 +17,41 @@ Token Lexer ::get() {
 
     skip_spaces();
 
-    if (isalpha(peek_char()) != 0) {
+    if (eof()) {
+        return Token(Token::Kind::Eof, "<EOF>", location_);
+    }
+
+    const auto next_char = peek_char();
+
+    static const std::unordered_map<char, Token::Kind> trivial_token_to_kind = {
+        {';', Token::Kind::Semicolon},
+        {',', Token::Kind::Comma},
+        {'(', Token::Kind::LParen},
+        {')', Token::Kind::RParen},
+    };
+
+    const auto it = trivial_token_to_kind.find(next_char);
+    if (it != trivial_token_to_kind.end()) {
+        const Location begin(location_);
+        get_char();
+        return make_token(it->second, begin);
+    }
+
+    if (isalpha(next_char) != 0) {
         return get_id_or_kw();
     }
-    if ((peek_char() == '-') || (peek_char() == '+') ||
-        (isdigit(peek_char()) != 0)) {
+
+    if ((next_char == '-') || (next_char == '+') || (isdigit(next_char) != 0)) {
         return get_number();
     }
 
-    Location begin(location_);
+    if (next_char == '"') {
+        return get_string();
+    }
 
+    const Location begin(location_);
     get_char();
-    return Token(Token::Kind::Err, input_.substr(begin.offset_, 1), begin);
+    return make_token(Token::Kind::Unknown, begin);
 }
 
 Token Lexer::peek() {
@@ -75,6 +94,7 @@ Token Lexer::get_id_or_kw() {
     while ((!eof()) && (isalnum(peek_char()) != 0)) {
         get_char();
     }
+
     const Location end(location_);
     const std::string_view text(
         input_.substr(begin.offset_, end.offset_ - begin.offset_));
@@ -83,6 +103,11 @@ Token Lexer::get_id_or_kw() {
         text_to_kind = {
             {"SELECT", Token::Kind::KwSelect},
             {"FROM", Token::Kind::KwFrom},
+            {"DROP", Token::Kind::KwDrop},
+            {"TABLE", Token::Kind::KwTable},
+            {"INSERT", Token::Kind::KwInsert},
+            {"INTO", Token::Kind::KwInto},
+            {"VALUES", Token::Kind::KwValues},
         };
 
     auto it = text_to_kind.find(text);
@@ -99,8 +124,7 @@ Token Lexer::get_number() {
     if ((peek_char() == '-') || (peek_char() == '+')) {
         get_char();
         if ((eof()) || (isdigit(peek_char()) == 0)) {
-            return Token(
-                Token::Kind::Err, input_.substr(begin.offset_, 1), begin);
+            return make_token(Token::Kind::Unknown, begin);
         }
     }
 
@@ -112,11 +136,30 @@ Token Lexer::get_number() {
         }
     }
 
-    const Location end(location_);
+    return make_token(Token::Kind::Int, begin);
+}
 
-    const std::string_view text(
-        input_.substr(begin.offset_, end.offset_ - begin.offset_));
-    return Token(Token::Kind::Int, text, begin);
+Token Lexer::get_string() {
+    const Location begin(location_);
+
+    get_char();
+
+    while ((!eof()) && (peek_char() != '"') && (peek_char() != '\n')) {
+        get_char();
+    }
+
+    if (peek_char() == '"') {
+        get_char();
+        return make_token(Token::Kind::String, begin);
+    }
+
+    return make_token(Token::Kind::Unknown, begin);
+}
+
+Token Lexer::make_token(Token::Kind kind, const Location& begin) const {
+    const auto length = location_.offset_ - begin.offset_;
+    const auto text = input_.substr(begin.offset_, length);
+    return Token(kind, text, begin);
 }
 
 }  // namespace rdb::parser

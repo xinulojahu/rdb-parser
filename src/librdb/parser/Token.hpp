@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Location.hpp>
+#include <librdb/parser/Location.hpp>
 
 #include <ostream>
 #include <string_view>
@@ -10,12 +10,22 @@ namespace rdb::parser {
 class Token {
    public:
     enum class Kind {
-        Id,
         KwSelect,
         KwFrom,
+        KwDrop,
+        KwTable,
+        KwInsert,
+        KwInto,
+        KwValues,
+        Semicolon,
+        Comma,
+        LParen,
+        RParen,
+        Id,
         Int,
-        Err,
+        String,
         Eof,
+        Unknown,
     };
     Token(Kind type, std::string_view lexema, Location location)
         : type_(type), lexema_(lexema), location_(location) {}
@@ -29,6 +39,8 @@ class Token {
     std::string_view lexema_;
     Location location_;
 };
+
+std::string_view kind_to_str(Token::Kind kind);
 
 std::ostream& operator<<(std::ostream& os, const Token& token);
 

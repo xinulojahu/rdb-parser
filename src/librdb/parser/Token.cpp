@@ -1,4 +1,4 @@
-#include <Token.hpp>
+#include <librdb/parser/Token.hpp>
 
 namespace rdb::parser {
 
@@ -14,33 +14,48 @@ Location Token::location() const {
     return location_;
 }
 
-static std::string_view kind_to_str(Token::Kind token_kind) {
+std::string_view kind_to_str(Token::Kind token_kind) {
     switch (token_kind) {
-        case Token::Kind::Id: {
-            return "Id";
-        }
-        case Token::Kind::KwSelect: {
+        case Token::Kind::KwSelect:
             return "KwSelect";
-        }
-        case Token::Kind::KwFrom: {
+        case Token::Kind::KwFrom:
             return "KwFrom";
-        }
-        case Token::Kind::Int: {
+        case Token::Kind::KwDrop:
+            return "KwDrop";
+        case Token::Kind::KwTable:
+            return "KwTable";
+        case Token::Kind::KwInsert:
+            return "KwInsert";
+        case Token::Kind::KwInto:
+            return "KwInto";
+        case Token::Kind::KwValues:
+            return "KwValues";
+        case Token::Kind::Semicolon:
+            return "Semicolon";
+        case Token::Kind::Comma:
+            return "Comma";
+        case Token::Kind::LParen:
+            return "LParen";
+        case Token::Kind::RParen:
+            return "RParen";
+        case Token::Kind::Id:
+            return "Id";
+        case Token::Kind::Int:
             return "Int";
-        }
-        case Token::Kind::Err: {
-            return "Err";
-        }
-        case Token::Kind::Eof: {
+        case Token::Kind::String:
+            return "String";
+        case Token::Kind::Eof:
             return "Eof";
-        }
+        case Token::Kind::Unknown:
+            return "Unknown";
     }
     return "Unexpected";
 }
 
 std::ostream& operator<<(std::ostream& os, const Token& token) {
     os << kind_to_str(token.type()) << " '" << token.lexema() << "' "
-       << "Loc=" << token.location().cols_ << ":" << token.location().rows_;
+       << "Loc=" << token.location().cols_ + 1 << ":"
+       << token.location().rows_ + 1;
     return os;
 }
 
