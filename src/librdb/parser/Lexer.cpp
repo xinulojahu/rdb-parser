@@ -41,12 +41,23 @@ Token Lexer::get() {
         return get_id_or_kw();
     }
 
-    if ((next_char == '-') || (next_char == '+') || (isdigit(next_char) != 0)) {
+    if (isdigit(next_char) != 0) {
         return get_number();
     }
 
-    if (next_char == '"') {
-        return get_string();
+    switch (next_char) {
+        case '-':
+        case '+':
+            return get_number();
+        case '"':
+            return get_string();
+        case '<':
+        case '>':
+        case '=':
+        case '!':
+            return get_operation();
+        default:
+            break;
     }
 
     const Location begin(location_);
@@ -162,6 +173,40 @@ Token Lexer::get_string() {
     }
 
     return make_token(Token::Kind::Unknown, begin);
+}
+
+Token Lexer::get_operation() {
+    const Location begin(location_);
+
+    char cur_char = get_char();
+
+    if (cur_char == '=') {
+        return make_token(Token::Kind::Eq, begin);
+    }
+
+    if (peek_char() == '=') {
+        get_char();
+        switch (cur_char) {
+            case '<':
+                return make_token(Token::Kind::Lte, begin);
+            case '>':
+                return make_token(Token::Kind::Rte, begin);
+            case '!':
+                return make_token(Token::Kind::Neq, begin);
+            default:
+                assert(false && "cur_char != < | > | !");
+        }
+    }
+    switch (cur_char) {
+        case '<':
+            return make_token(Token::Kind::Lt, begin);
+        case '>':
+            return make_token(Token::Kind::Rt, begin);
+        case '!':
+            return make_token(Token::Kind::Unknown, begin);
+        default:
+            assert(false && "cur_char != < | > | !");
+    }
 }
 
 Token Lexer::make_token(Token::Kind kind, const Location& begin) const {

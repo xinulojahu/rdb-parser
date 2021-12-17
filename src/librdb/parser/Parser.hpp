@@ -29,6 +29,8 @@ class Parser {
 
     Value parse_value();
 
+    Operand parse_operand();
+
     Lexer& lexer_;
 };
 

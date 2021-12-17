@@ -38,6 +38,18 @@ std::string_view kind_to_str(const Token::Kind& token_kind) {
             return "LParen";
         case Token::Kind::RParen:
             return "RParen";
+        case Token::Kind::Lte:
+            return "Lte";
+        case Token::Kind::Rte:
+            return "Rte";
+        case Token::Kind::Neq:
+            return "Neq";
+        case Token::Kind::Lt:
+            return "Lt";
+        case Token::Kind::Rt:
+            return "Rt";
+        case Token::Kind::Eq:
+            return "Eq";
         case Token::Kind::Id:
             return "Id";
         case Token::Kind::Int:

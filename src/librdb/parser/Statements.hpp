@@ -11,6 +11,16 @@
 namespace rdb::parser {
 
 using Value = std::variant<int32_t, float, std::string_view>;
+using Operand = std::variant<std::string_view, Value>;
+
+enum class Operation {
+    Lt,
+    Rt,
+    Eq,
+    Lte,
+    Rte,
+    Neq,
+};
 
 class Statement {
    public:

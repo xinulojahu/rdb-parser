@@ -126,26 +126,42 @@ Value Parser::parse_value() {
     const Token token = lexer_.peek();
     char* end = nullptr;
     const int base = 10;
-    Value val;
     if (token.type() == Token::Kind::Int) {
         lexer_.get();
-        val = int32_t(std::strtol(token.lexema().data(), &end, base));
+        Value val = int32_t(std::strtol(token.lexema().data(), &end, base));
         assert(token.lexema().data() + token.lexema().size() == end);
         return val;
     }
     if (token.type() == Token::Kind::Real) {
         lexer_.get();
-        val = std::strtof(token.lexema().data(), &end);
+        Value val = std::strtof(token.lexema().data(), &end);
         assert(token.lexema().data() + token.lexema().size() == end);
         return val;
     }
     if (token.type() == Token::Kind::String) {
         lexer_.get();
-        val = token.lexema();
+        Value val = token.lexema();
         return val;
     }
 
-    throw SyntaxError(make_error_msg("int, rea or string", token));
+    throw SyntaxError(make_error_msg("int, real or string", token));
+}
+
+Operand Parser::parse_operand() {
+    const Token token = lexer_.peek();
+    if (token.type() == Token::Kind::Id) {
+        lexer_.get();
+        Operand oper = token.lexema();
+        return oper;
+    }
+    if (token.type() == Token::Kind::Int || token.type() == Token::Kind::Real ||
+        token.type() == Token::Kind::String) {
+        Operand oper = parse_value();
+        return oper;
+    }
+
+    throw SyntaxError(
+        make_error_msg("int, real, string or column name", token));
 }
 
 }  // namespace rdb::parser

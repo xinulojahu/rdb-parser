@@ -132,6 +132,43 @@ TEST(LexerSuite, StringTest) {
     EXPECT_EQ(expcted_token, tokens);
 }
 
+TEST(LexerSuite, OperationTest) {
+    const auto tokens = get_tokens(
+        "<=\n"
+        ">=\n"
+        "!=\n"
+        "<\n"
+        ">\n"
+        "=\n"
+        "!\n"
+        "<<<=!=>=!!===>>!>\n");
+
+    const std::string expcted_token =
+        "Lte '<=' Loc=1:1\n"
+        "Rte '>=' Loc=1:2\n"
+        "Neq '!=' Loc=1:3\n"
+        "Lt '<' Loc=1:4\n"
+        "Rt '>' Loc=1:5\n"
+        "Eq '=' Loc=1:6\n"
+        "Unknown '!' Loc=1:7\n"
+        "Lt '<' Loc=1:8\n"
+        "Lt '<' Loc=2:8\n"
+        "Lte '<=' Loc=3:8\n"
+        "Neq '!=' Loc=5:8\n"
+        "Rte '>=' Loc=7:8\n"
+        "Unknown '!' Loc=9:8\n"
+        "Neq '!=' Loc=10:8\n"
+        "Eq '=' Loc=12:8\n"
+        "Eq '=' Loc=13:8\n"
+        "Rt '>' Loc=14:8\n"
+        "Rt '>' Loc=15:8\n"
+        "Unknown '!' Loc=16:8\n"
+        "Rt '>' Loc=17:8\n"
+        "Eof '<EOF>' Loc=1:9\n";
+
+    EXPECT_EQ(expcted_token, tokens);
+}
+
 TEST(LexerSuite, OtherTokensTest) {
     const auto tokens = get_tokens(
         ",(;)((;\n"

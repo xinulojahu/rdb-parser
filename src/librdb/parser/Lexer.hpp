@@ -25,6 +25,7 @@ class Lexer {
     Token get_id_or_kw();
     Token get_number();
     Token get_string();
+    Token get_operation();
 
     Token make_token(Token::Kind kind, const Location& begin) const;
 
