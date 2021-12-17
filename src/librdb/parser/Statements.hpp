@@ -11,20 +11,28 @@
 
 namespace rdb::parser {
 
-using Value = std::variant<int32_t, float, std::string_view>;
-
-using Operand = std::variant<std::string_view, Value>;
-
-enum class Operation {
-    Lt,
-    Rt,
-    Eq,
-    Lte,
-    Rte,
-    Neq,
+struct ColumnDef {
+    enum class Type {
+        Int,
+        Real,
+        Text,
+    };
+    std::string_view column_name_;
+    Type type_;
 };
 
+using Value = std::variant<int32_t, float, std::string_view>;
+
 struct Expression {
+    enum class Operation {
+        Lt,
+        Rt,
+        Eq,
+        Lte,
+        Rte,
+        Neq,
+    };
+    using Operand = std::variant<std::string_view, Value>;
     Operand left_;
     Operation operation_;
     Operand right_;
@@ -37,6 +45,26 @@ class Statement {
 };
 
 using StatementPtr = std::unique_ptr<const Statement>;
+
+class CreateTableStatement : public Statement {
+   public:
+    explicit CreateTableStatement(
+        const std::string_view table_name,
+        const std::vector<ColumnDef> column_defs)
+        : table_name_(table_name), column_defs_(column_defs) {}
+
+    std::string_view table_name() const { return table_name_; }
+
+    const std::vector<ColumnDef>& column_defs() const { return column_defs_; }
+
+    std::string to_string() const override;
+
+   private:
+    std::string_view table_name_;
+    std::vector<ColumnDef> column_defs_;
+};
+
+using CreateTableStatementPtr = std::unique_ptr<const CreateTableStatement>;
 
 class SelectStatement : public Statement {
    public:

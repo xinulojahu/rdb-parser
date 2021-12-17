@@ -18,7 +18,7 @@ static std::string value_to_str(const Value& value) {
     return std::string(*std::get_if<std::string_view>(&value));
 }
 
-static std::string operand_to_str(const Operand& operand) {
+static std::string operand_to_str(const Expression::Operand& operand) {
     if (const std::string_view* pval =
             std::get_if<std::string_view>(&operand)) {
         return std::string(*pval);
@@ -26,19 +26,19 @@ static std::string operand_to_str(const Operand& operand) {
     return value_to_str(*std::get_if<Value>(&operand));
 }
 
-static std::string operation_to_str(const Operation& operation) {
+static std::string operation_to_str(const Expression::Operation& operation) {
     switch (operation) {
-        case Operation::Lte:
+        case Expression::Operation::Lte:
             return "<=";
-        case Operation::Rte:
+        case Expression::Operation::Rte:
             return ">=";
-        case Operation::Neq:
+        case Expression::Operation::Neq:
             return "!=";
-        case Operation::Lt:
+        case Expression::Operation::Lt:
             return "<";
-        case Operation::Rt:
+        case Expression::Operation::Rt:
             return ">";
-        case Operation::Eq:
+        case Expression::Operation::Eq:
             return "=";
     }
     return "Unexpected";
@@ -50,20 +50,46 @@ static std::string expression_to_str(const Expression& expression) {
            operand_to_str(expression.right_);
 }
 
+static std::string column_def_type_to_str(const ColumnDef::Type type) {
+    switch (type) {
+        case ColumnDef::Type::Int:
+            return "INT";
+        case ColumnDef::Type::Real:
+            return "REAL";
+        case ColumnDef::Type::Text:
+            return "TEXT";
+    }
+    return "Unexpected";
+}
+
+static std::string column_def_to_str(const ColumnDef& column_def) {
+    return std::string(column_def.column_name_) + " " +
+           column_def_type_to_str(column_def.type_);
+}
+
+std::string CreateTableStatement::to_string() const {
+    std::stringstream out;
+    auto column_def = column_defs().begin();
+    out << "CREATE TABLE " << table_name() << " ("
+        << column_def_to_str(*column_def);
+    for (column_def++; column_def != column_defs().end(); column_def++) {
+        out << ", " << column_def_to_str(*column_def);
+    }
+    out << ");";
+
+    return out.str();
+}
+
 std::string SelectStatement::to_string() const {
     std::stringstream out;
     out << "SELECT ";
-
     for (auto column_name : column_names()) {
         out << column_name << " ";
     }
-
     out << "FROM " << table_name();
-
     if (expression()) {
         out << " WHERE " << expression_to_str(*expression());
     }
-
     out << ";";
 
     return out.str();

@@ -121,6 +121,10 @@ Token Lexer::get_id_or_kw() {
             {"VALUES", Token::Kind::KwValues},
             {"DELETE", Token::Kind::KwDelete},
             {"WHERE", Token::Kind::KwWhere},
+            {"CREATE", Token::Kind::KwCreate},
+            {"INT", Token::Kind::KwInt},
+            {"REAL", Token::Kind::KwReal},
+            {"TEXT", Token::Kind::KwText},
         };
 
     auto it = text_to_kind.find(text);
@@ -171,7 +175,7 @@ Token Lexer::get_string() {
 
     if (peek_char() == '"') {
         get_char();
-        return make_token(Token::Kind::String, begin);
+        return make_token(Token::Kind::Text, begin);
     }
 
     return make_token(Token::Kind::Unknown, begin);

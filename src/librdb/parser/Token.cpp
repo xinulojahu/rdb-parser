@@ -34,6 +34,14 @@ std::string_view kind_to_str(const Token::Kind& token_kind) {
             return "KwDelete";
         case Token::Kind::KwWhere:
             return "KwWhere";
+        case Token::Kind::KwCreate:
+            return "KwCreate";
+        case Token::Kind::KwInt:
+            return "KwInt";
+        case Token::Kind::KwReal:
+            return "KwReal";
+        case Token::Kind::KwText:
+            return "KwText";
         case Token::Kind::Semicolon:
             return "Semicolon";
         case Token::Kind::Comma:
@@ -60,8 +68,8 @@ std::string_view kind_to_str(const Token::Kind& token_kind) {
             return "Int";
         case Token::Kind::Real:
             return "Real";
-        case Token::Kind::String:
-            return "String";
+        case Token::Kind::Text:
+            return "Text";
         case Token::Kind::Eof:
             return "Eof";
         case Token::Kind::Unknown:

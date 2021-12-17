@@ -24,12 +24,15 @@ class Parser {
 
     Token fetch_token(Token::Kind expected_kind);
 
+    ColumnDef parse_column_def();
+
     Value parse_value();
 
-    Operand parse_operand();
-    Operation parse_operation();
+    Expression::Operand parse_operand();
+    Expression::Operation parse_operation();
     Expression parse_expression();
 
+    CreateTableStatementPtr parse_create_table_statement();
     SelectStatementPtr parse_select_statement();
     InsertStatementPtr parse_insert_statement();
     DeleteStatementPtr parse_delete_statement();

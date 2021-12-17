@@ -119,11 +119,11 @@ TEST(LexerSuite, StringTest) {
     );
 
     const std::string expcted_token =
-        "String '\"str1\"' Loc=1:1\n"
+        "Text '\"str1\"' Loc=1:1\n"
         "Unknown '\"str2' Loc=2:1\n"
         "Id 'str3' Loc=3:1\n"
         "Unknown '\"' Loc=3:5\n"
-        "String '\"str4 1231 INSERT 2.1\"' Loc=4:1\n"
+        "Text '\"str4 1231 INSERT 2.1\"' Loc=4:1\n"
         "Int '1231' Loc=4:23\n"
         "KwInsert 'INSERT' Loc=4:28\n"
         "Real '2.1' Loc=4:35\n"
@@ -211,6 +211,40 @@ std::string get_parser_result(const std::string_view input) {
     }
 
     return out.str();
+}
+
+TEST(ParserSuite, CreateTableStatementTest) {
+    const auto parser_result = get_parser_result(
+        "CREATE TABLE table (col TEXT, int INT, real REAL);\n"
+        "CREATE TABLE table (int INT, real REAL);\n"
+        "CREATE TABLE table (real REAL);\n"
+        "CREATE TABLE table (real);\n"
+        "CREATE TABLE table (REAL);\n"
+        "CREATE TABLE table2 table (col TEXT, int INT, real REAL);\n"
+        "CREATE TABLE (col TEXT, int INT, real REAL);\n"
+        "CREATE TABLE col TEXT (col TEXT, int INT, real REAL);\n"
+        "CREATE table table (col TEXT, int INT, real REAL);\n"
+        "CRETE TABLE table (col TEXT, int INT, real REAL);\n"
+        "CREATE TABLE table ();\n"
+        "CREATE TABLE table;\n"
+        "CREATE TABLE table\n (col TEXT);\n");
+
+    const std::string expected_result =
+        "CREATE TABLE table (col TEXT, int INT, real REAL);\n"
+        "CREATE TABLE table (int INT, real REAL);\n"
+        "CREATE TABLE table (real REAL);\n"
+        "CREATE TABLE table (col TEXT);\n"
+        "Expected INT, REAL or TEXT, got RParen ')' 4:25\n"
+        "Expected Id, got KwReal 'REAL' 5:21\n"
+        "Expected LParen, got Id 'table' 6:21\n"
+        "Expected Id, got LParen '(' 7:14\n"
+        "Expected LParen, got KwText 'TEXT' 8:18\n"
+        "Expected KwTable, got Id 'table' 9:8\n"
+        "Expected CREATE, SELECT, INSERT, DELETE or DROP, got Id 'CRETE' 10:1\n"
+        "Expected Id, got RParen ')' 11:21\n"
+        "Expected LParen, got Semicolon ';' 12:19\n";
+
+    EXPECT_EQ(expected_result, parser_result);
 }
 
 TEST(ParserSuite, SelectStatementTest) {
