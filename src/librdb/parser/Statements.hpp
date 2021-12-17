@@ -10,26 +10,29 @@
 
 namespace rdb::parser {
 
-using Value = std::variant<int, float, std::string_view>;
+using Value = std::variant<int32_t, float, std::string_view>;
 
 class Statement {
    public:
     virtual ~Statement() = 0;
+    virtual std::string to_string() const = 0;
 };
 
 using StatementPtr = std::unique_ptr<const Statement>;
 
-class DropTablesStatement : public Statement {
+class DropTableStatement : public Statement {
    public:
-    explicit DropTablesStatement(std::string_view table_name)
+    explicit DropTableStatement(std::string_view table_name)
         : table_name_(table_name) {}
     std::string_view table_name() const { return table_name_; }
+
+    std::string to_string() const override;
 
    private:
     std::string_view table_name_;
 };
 
-using DropTablesStatementPtr = std::unique_ptr<const DropTablesStatement>;
+using DropTableStatementPtr = std::unique_ptr<const DropTableStatement>;
 
 class InsertStatement : public Statement {
    public:
@@ -43,6 +46,8 @@ class InsertStatement : public Statement {
     std::string_view table_name() const { return table_name_; }
     std::vector<std::string_view>& column_names() { return column_names_; }
     std::vector<Value>& values() { return values_; }
+
+    std::string to_string() const override;
 
    private:
     std::string_view table_name_;

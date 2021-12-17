@@ -1,4 +1,4 @@
-set(target_name librdb_lexer)
+set(target_name librdb_parser)
 
 add_library(${target_name} STATIC)
 
@@ -30,7 +30,7 @@ target_link_libraries(
     ${target_name}
 )
 
-set(tests_name librdb_lexertest)
+set(tests_name librdb_test)
 add_executable(${tests_name})
 
 set_compile_options(${tests_name})
@@ -38,7 +38,7 @@ set_compile_options(${tests_name})
 target_sources(
     ${tests_name}
     PRIVATE
-        LexerTests.cpp
+        Tests.cpp
 )
 
 target_include_directories(
@@ -50,7 +50,7 @@ target_include_directories(
 target_link_libraries(
     ${tests_name}
     PRIVATE
-        librdb_lexer
+        librdb_parser
         gtest_main
 )
 

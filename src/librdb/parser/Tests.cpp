@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include <librdb/parser/Lexer.hpp>
+#include <librdb/parser/Parser.hpp>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -49,7 +51,7 @@ TEST(LexerSuite, PeekGetTest) {
 }
 
 TEST(LexerSuite, IdTest) {
-    auto tokens = get_tokens("a b2 aselect $");
+    const auto tokens = get_tokens("a b2 aselect $");
 
     const std::string expcted_token =
         "Id 'a' Loc=1:1\n"
@@ -62,7 +64,7 @@ TEST(LexerSuite, IdTest) {
 }
 
 TEST(LexerSuite, KwTest) {
-    auto tokens = get_tokens("SELECT value FROM table");
+    const auto tokens = get_tokens("SELECT value FROM table");
 
     const std::string expcted_token =
         "KwSelect 'SELECT' Loc=1:1\n"
@@ -75,7 +77,7 @@ TEST(LexerSuite, KwTest) {
 }
 
 TEST(LexerSuite, IntTest) {
-    auto tokens = get_tokens("123 -312 +0123 -k");
+    const auto tokens = get_tokens("123 -312 +0123 -k");
 
     const std::string expcted_token =
         "Int '123' Loc=1:1\n"
@@ -90,7 +92,7 @@ TEST(LexerSuite, IntTest) {
 }
 
 TEST(LexerSuite, RealTest) {
-    auto tokens = get_tokens("1. -312.123l2.1 +0.0123 3.5.31.3");
+    const auto tokens = get_tokens("1. -312.123l2.1 +0.0123 3.5.31.3");
 
     const std::string expcted_token =
         "Real '1.' Loc=1:1\n"
@@ -108,7 +110,7 @@ TEST(LexerSuite, RealTest) {
 }
 
 TEST(LexerSuite, StringTest) {
-    auto tokens = get_tokens(
+    const auto tokens = get_tokens(
         "\"str1\"\n"
         "\"str2\n"
         "str3\"\n"
@@ -128,5 +130,44 @@ TEST(LexerSuite, StringTest) {
         "Eof '<EOF>' Loc=39:4\n";
 
     EXPECT_EQ(expcted_token, tokens);
+}
+
+std::string get_parser_result(const std::string_view input) {
+    rdb::parser::Lexer lexer(input);
+    rdb::parser::Parser parser(lexer);
+    rdb::parser::Parser::Result result;
+
+    result = parser.parse_sql_script();
+
+    std::stringstream out;
+
+    for (const auto& i : result.script.statements_) {
+        out << i->to_string() << '\n';
+    }
+
+    for (const auto& i : result.errors_) {
+        out << i << '\n';
+    }
+
+    return out.str();
+}
+
+TEST(ParserSuite, DropTablesStatementTest) {
+    const auto parser_result = get_parser_result(
+        "DROP TABLE table;\n"
+        "someword; DROP TABLE table2;\n"
+        "anotherword DROP TABLE table3;\n"
+        "DROP table TABLE;\n"
+        "DROP TABLE 123;\n");
+
+    const std::string expected_result =
+        "DROP TABLE table\n"
+        "DROP TABLE table2\n"
+        "Expected Drop or Insert\n"
+        "Expected Drop or Insert\n"
+        "Expeted KwTable, got Id\n"
+        "Expeted Id, got Int\n";
+
+    EXPECT_EQ(expected_result, parser_result);
 }
 

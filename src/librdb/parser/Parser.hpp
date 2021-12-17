@@ -24,7 +24,7 @@ class Parser {
 
     Token fetch_token(Token::Kind expected_kind);
 
-    DropTablesStatementPtr parse_drop_table_statement();
+    DropTableStatementPtr parse_drop_table_statement();
     InsertStatementPtr parse_insert_table_statement();
 
     Value parse_value();

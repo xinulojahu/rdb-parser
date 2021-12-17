@@ -65,18 +65,18 @@ Token Parser::fetch_token(Token::Kind expected_kind) {
     Token token = lexer_.peek();
     if (token.type() != expected_kind) {
         throw SyntaxError(
-            "Expeted" + std::string(kind_to_str(expected_kind)) + ", got " +
+            "Expeted " + std::string(kind_to_str(expected_kind)) + ", got " +
             std::string(kind_to_str(token.type())));
     }
     return lexer_.get();
 }
 
-DropTablesStatementPtr Parser::parse_drop_table_statement() {
+DropTableStatementPtr Parser::parse_drop_table_statement() {
     fetch_token(Token::Kind::KwDrop);
     fetch_token(Token::Kind::KwTable);
     const Token table_name = fetch_token(Token::Kind::Id);
     fetch_token(Token::Kind::Semicolon);
-    return std::make_unique<const DropTablesStatement>(table_name.lexema());
+    return std::make_unique<const DropTableStatement>(table_name.lexema());
 }
 
 InsertStatementPtr Parser::parse_insert_table_statement() {
@@ -126,12 +126,14 @@ Value Parser::parse_value() {
         val = int32_t(std::strtol(token.lexema().data(), &end, base));
         assert(token.lexema().data() + token.lexema().size() == end);
         return val;
-    } else if (token.type() == Token::Kind::Real) {
+    }
+    if (token.type() == Token::Kind::Real) {
         lexer_.get();
         val = std::strtof(lexer_.get().lexema().data(), &end);
         assert(token.lexema().data() + token.lexema().size() == end);
         return val;
-    } else if (token.type() == Token::Kind::String) {
+    }
+    if (token.type() == Token::Kind::String) {
         lexer_.get();
         val = lexer_.get().lexema();
         return val;
