@@ -1,4 +1,4 @@
-set(target_name calclib)
+set(target_name librdb_parser)
 
 add_library(${target_name} STATIC)
 
@@ -8,8 +8,16 @@ set_compile_options(${target_name})
 target_sources(
     ${target_name}
     PRIVATE
-        sum.hpp
-        sum.cpp
+        Lexer.cpp
+        Lexer.hpp
+        Location.hpp
+        Parser.cpp
+        Parser.hpp
+        Script.hpp
+        Statements.cpp
+        Statements.hpp
+        Token.cpp
+        Token.hpp
 )
 
 target_include_directories(
@@ -22,7 +30,7 @@ target_link_libraries(
     ${target_name}
 )
 
-set(tests_name calctest)
+set(tests_name librdb_test)
 add_executable(${tests_name})
 
 set_compile_options(${tests_name})
@@ -30,7 +38,7 @@ set_compile_options(${tests_name})
 target_sources(
     ${tests_name}
     PRIVATE
-        sum.test.cpp
+        Tests.cpp
 )
 
 target_include_directories(
@@ -42,7 +50,7 @@ target_include_directories(
 target_link_libraries(
     ${tests_name}
     PRIVATE
-        calclib
+        librdb_parser
         gtest_main
 )
 
