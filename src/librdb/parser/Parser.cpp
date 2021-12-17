@@ -59,14 +59,17 @@ void Parser::panic() {
 StatementPtr Parser::parse_sql_statement() {
     const Token token = lexer_.peek();
     switch (token.type()) {
-        case Token::Kind::KwDrop:
-            return parse_drop_table_statement();
         case Token::Kind::KwInsert:
             return parse_insert_table_statement();
+        case Token::Kind::KwDelete:
+            return parse_delete_statement();
+        case Token::Kind::KwDrop:
+            return parse_drop_table_statement();
         default:
             break;
     }
-    throw SyntaxError(make_error_msg("DROP or INSERT", token));
+    throw SyntaxError(
+        make_error_msg("CREATE, SELECT, INSERT, DELETE or DROP", token));
 }
 
 Token Parser::fetch_token(Token::Kind expected_kind) {
@@ -77,12 +80,73 @@ Token Parser::fetch_token(Token::Kind expected_kind) {
     return lexer_.get();
 }
 
-DropTableStatementPtr Parser::parse_drop_table_statement() {
-    fetch_token(Token::Kind::KwDrop);
-    fetch_token(Token::Kind::KwTable);
-    const Token table_name = fetch_token(Token::Kind::Id);
-    fetch_token(Token::Kind::Semicolon);
-    return std::make_unique<const DropTableStatement>(table_name.lexema());
+Value Parser::parse_value() {
+    const Token token = lexer_.peek();
+    char* end = nullptr;
+    const int base = 10;
+    if (token.type() == Token::Kind::Int) {
+        lexer_.get();
+        Value val = int32_t(std::strtol(token.lexema().data(), &end, base));
+        assert(token.lexema().data() + token.lexema().size() == end);
+        return val;
+    }
+    if (token.type() == Token::Kind::Real) {
+        lexer_.get();
+        Value val = std::strtof(token.lexema().data(), &end);
+        assert(token.lexema().data() + token.lexema().size() == end);
+        return val;
+    }
+    if (token.type() == Token::Kind::String) {
+        lexer_.get();
+        Value val = token.lexema();
+        return val;
+    }
+
+    throw SyntaxError(make_error_msg("value", token));
+}
+
+Operand Parser::parse_operand() {
+    const Token token = lexer_.peek();
+    if (token.type() == Token::Kind::Id) {
+        lexer_.get();
+        Operand oper = token.lexema();
+        return oper;
+    }
+    if (token.type() == Token::Kind::Int || token.type() == Token::Kind::Real ||
+        token.type() == Token::Kind::String) {
+        Operand oper = parse_value();
+        return oper;
+    }
+
+    throw SyntaxError(make_error_msg("operand", token));
+}
+
+Operation Parser::parse_operation() {
+    const Token token = lexer_.get();
+    switch (token.type()) {
+        case Token::Kind::Lte:
+            return Operation::Lte;
+        case Token::Kind::Rte:
+            return Operation::Rte;
+        case Token::Kind::Neq:
+            return Operation::Neq;
+        case Token::Kind::Lt:
+            return Operation::Lt;
+        case Token::Kind::Rt:
+            return Operation::Rt;
+        case Token::Kind::Eq:
+            return Operation::Eq;
+        default:
+            throw SyntaxError(make_error_msg("opration", token));
+    }
+}
+
+Expression Parser::parse_expression() {
+    Expression expression;
+    expression.left_ = parse_operand();
+    expression.operation_ = parse_operation();
+    expression.right_ = parse_operand();
+    return expression;
 }
 
 InsertStatementPtr Parser::parse_insert_table_statement() {
@@ -122,46 +186,28 @@ InsertStatementPtr Parser::parse_insert_table_statement() {
         table_name.lexema(), column_names, values);
 }
 
-Value Parser::parse_value() {
-    const Token token = lexer_.peek();
-    char* end = nullptr;
-    const int base = 10;
-    if (token.type() == Token::Kind::Int) {
-        lexer_.get();
-        Value val = int32_t(std::strtol(token.lexema().data(), &end, base));
-        assert(token.lexema().data() + token.lexema().size() == end);
-        return val;
-    }
-    if (token.type() == Token::Kind::Real) {
-        lexer_.get();
-        Value val = std::strtof(token.lexema().data(), &end);
-        assert(token.lexema().data() + token.lexema().size() == end);
-        return val;
-    }
-    if (token.type() == Token::Kind::String) {
-        lexer_.get();
-        Value val = token.lexema();
-        return val;
-    }
+DeleteStatementPtr Parser::parse_delete_statement() {
+    fetch_token(Token::Kind::KwDelete);
+    fetch_token(Token::Kind::KwFrom);
+    const Token table_name = fetch_token(Token::Kind::Id);
 
-    throw SyntaxError(make_error_msg("int, real or string", token));
+    if (lexer_.peek().type() == Token::Kind::KwWhere) {
+        fetch_token(Token::Kind::KwWhere);
+        const Expression expression = parse_expression();
+        fetch_token(Token::Kind::Semicolon);
+        return std::make_unique<const DeleteStatement>(
+            table_name.lexema(), expression);
+    }
+    fetch_token(Token::Kind::Semicolon);
+    return std::make_unique<const DeleteStatement>(table_name.lexema());
 }
 
-Operand Parser::parse_operand() {
-    const Token token = lexer_.peek();
-    if (token.type() == Token::Kind::Id) {
-        lexer_.get();
-        Operand oper = token.lexema();
-        return oper;
-    }
-    if (token.type() == Token::Kind::Int || token.type() == Token::Kind::Real ||
-        token.type() == Token::Kind::String) {
-        Operand oper = parse_value();
-        return oper;
-    }
-
-    throw SyntaxError(
-        make_error_msg("int, real, string or column name", token));
+DropTableStatementPtr Parser::parse_drop_table_statement() {
+    fetch_token(Token::Kind::KwDrop);
+    fetch_token(Token::Kind::KwTable);
+    const Token table_name = fetch_token(Token::Kind::Id);
+    fetch_token(Token::Kind::Semicolon);
+    return std::make_unique<const DropTableStatement>(table_name.lexema());
 }
 
 }  // namespace rdb::parser

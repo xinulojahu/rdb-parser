@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <exception>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -11,6 +12,7 @@
 namespace rdb::parser {
 
 using Value = std::variant<int32_t, float, std::string_view>;
+
 using Operand = std::variant<std::string_view, Value>;
 
 enum class Operation {
@@ -22,6 +24,12 @@ enum class Operation {
     Neq,
 };
 
+struct Expression {
+    Operand left_;
+    Operation operation_;
+    Operand right_;
+};
+
 class Statement {
    public:
     virtual ~Statement() = 0;
@@ -30,23 +38,9 @@ class Statement {
 
 using StatementPtr = std::unique_ptr<const Statement>;
 
-class DropTableStatement : public Statement {
-   public:
-    explicit DropTableStatement(std::string_view table_name)
-        : table_name_(table_name) {}
-    std::string_view table_name() const { return table_name_; }
-
-    std::string to_string() const override;
-
-   private:
-    std::string_view table_name_;
-};
-
-using DropTableStatementPtr = std::unique_ptr<const DropTableStatement>;
-
 class InsertStatement : public Statement {
    public:
-    InsertStatement(
+    explicit InsertStatement(
         const std::string_view table_name,
         const std::vector<std::string_view>& column_names,
         const std::vector<Value>& values)
@@ -68,5 +62,39 @@ class InsertStatement : public Statement {
 };
 
 using InsertStatementPtr = std::unique_ptr<const InsertStatement>;
+
+class DeleteStatement : public Statement {
+   public:
+    explicit DeleteStatement(
+        const std::string_view table_name,
+        const std::optional<Expression> expression = std::nullopt)
+        : table_name_(table_name), expression_(expression) {}
+
+    std::string_view table_name() const { return table_name_; }
+
+    std::optional<Expression> expression() const { return expression_; }
+
+    std::string to_string() const override;
+
+   private:
+    std::string_view table_name_;
+    std::optional<Expression> expression_;
+};
+
+using DeleteStatementPtr = std::unique_ptr<const DeleteStatement>;
+
+class DropTableStatement : public Statement {
+   public:
+    explicit DropTableStatement(std::string_view table_name)
+        : table_name_(table_name) {}
+    std::string_view table_name() const { return table_name_; }
+
+    std::string to_string() const override;
+
+   private:
+    std::string_view table_name_;
+};
+
+using DropTableStatementPtr = std::unique_ptr<const DropTableStatement>;
 
 }  // namespace rdb::parser

@@ -213,33 +213,6 @@ std::string get_parser_result(const std::string_view input) {
     return out.str();
 }
 
-TEST(ParserSuite, DropTableStatementTest) {
-    const auto parser_result = get_parser_result(
-        "DROP TABLE table;\n"
-        "DROP TABLE table2\n;"
-        "DROP TABLE table\n"
-        "someword; DROP TABLE table3;\n"
-        "anotherword DROP TABLE table4;\n"
-        "DROP table TABLE;\n"
-        "DROP TABLE 123;\n"
-        "DROP;\n"
-        "DROP TABLE;\n"
-        "TABLE;\n");
-
-    const std::string expected_result =
-        "DROP TABLE table;\n"
-        "DROP TABLE table2;\n"
-        "DROP TABLE table3;\n"
-        "Expected Semicolon, got Id 'someword' 4:1\n"
-        "Expected DROP or INSERT, got Id 'anotherword' 5:1\n"
-        "Expected KwTable, got Id 'table' 6:6\n"
-        "Expected Id, got Int '123' 7:12\n"
-        "Expected KwTable, got Semicolon ';' 8:5\n"
-        "Expected Id, got Semicolon ';' 9:11\n"
-        "Expected DROP or INSERT, got KwTable 'TABLE' 10:1\n";
-    EXPECT_EQ(expected_result, parser_result);
-}
-
 TEST(ParserSuite, InsertStatementTest) {
     const auto parser_result = get_parser_result(
         "INSERT INTO t (n1) VALUES (123);\n"
@@ -260,3 +233,60 @@ TEST(ParserSuite, InsertStatementTest) {
     EXPECT_EQ(expected_result, parser_result);
 }
 
+TEST(ParserSuite, DeleteStatementTest) {
+    const auto parser_result = get_parser_result(
+        "DELETE FROM t;\n"
+        "DELETE FROM t WHERE \"asd\" = id;\n"
+        "DELETE FROM t WHERE \"asd\" != 123;\n"
+        "DELETE FROM t WHERE id <= 123;\n"
+        "DELETE FROM t WHERE 123.2 >= 123;\n"
+        "DELETE FROM t WHERE \"asd\" < 123;\n"
+        "DELETE FROM t WHERE id > id2;\n"
+        "DELETE FROM t WHERE;\n"
+        "DELETE FROM t WHERE dd <=;\n"
+        "DELETE FROM t WHERE <= ddd;\n"
+        "DELETE FROM WHERE <= ddd;\n");
+
+    const std::string expected_result =
+        "DELETE FROM t;\n"
+        "DELETE FROM t WHERE \"asd\" = id;\n"
+        "DELETE FROM t WHERE \"asd\" != 123;\n"
+        "DELETE FROM t WHERE id <= 123;\n"
+        "DELETE FROM t WHERE 123.199997 >= 123;\n"
+        "DELETE FROM t WHERE \"asd\" < 123;\n"
+        "DELETE FROM t WHERE id > id2;\n"
+        "Expected operand, got Semicolon ';' 8:20\n"
+        "Expected operand, got Semicolon ';' 9:26\n"
+        "Expected operand, got Lte '<=' 10:21\n"
+        "Expected Id, got KwWhere 'WHERE' 11:13\n";
+
+    EXPECT_EQ(expected_result, parser_result);
+}
+
+TEST(ParserSuite, DropTableStatementTest) {
+    const auto parser_result = get_parser_result(
+        "DROP TABLE table;\n"
+        "DROP TABLE table2\n;"
+        "DROP TABLE table\n"
+        "someword; DROP TABLE table3;\n"
+        "word DROP TABLE table4;\n"
+        "DROP table TABLE;\n"
+        "DROP TABLE 123;\n"
+        "DROP;\n"
+        "DROP TABLE;\n"
+        "TABLE;\n");
+
+    const std::string expected_result =
+        "DROP TABLE table;\n"
+        "DROP TABLE table2;\n"
+        "DROP TABLE table3;\n"
+        "Expected Semicolon, got Id 'someword' 4:1\n"
+        "Expected CREATE, SELECT, INSERT, DELETE or DROP, got Id 'word' 5:1\n"
+        "Expected KwTable, got Id 'table' 6:6\n"
+        "Expected Id, got Int '123' 7:12\n"
+        "Expected KwTable, got Semicolon ';' 8:5\n"
+        "Expected Id, got Semicolon ';' 9:11\n"
+        "Expected CREATE, SELECT, INSERT, DELETE or DROP, got KwTable 'TABLE' "
+        "10:1\n";
+    EXPECT_EQ(expected_result, parser_result);
+}

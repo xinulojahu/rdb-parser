@@ -30,6 +30,10 @@ std::string_view kind_to_str(const Token::Kind& token_kind) {
             return "KwInto";
         case Token::Kind::KwValues:
             return "KwValues";
+        case Token::Kind::KwDelete:
+            return "KwDelete";
+        case Token::Kind::KwWhere:
+            return "KwWhere";
         case Token::Kind::Semicolon:
             return "Semicolon";
         case Token::Kind::Comma:

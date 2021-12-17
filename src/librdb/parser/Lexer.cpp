@@ -119,6 +119,8 @@ Token Lexer::get_id_or_kw() {
             {"INSERT", Token::Kind::KwInsert},
             {"INTO", Token::Kind::KwInto},
             {"VALUES", Token::Kind::KwValues},
+            {"DELETE", Token::Kind::KwDelete},
+            {"WHERE", Token::Kind::KwWhere},
         };
 
     auto it = text_to_kind.find(text);

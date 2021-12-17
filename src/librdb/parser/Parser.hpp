@@ -24,12 +24,15 @@ class Parser {
 
     Token fetch_token(Token::Kind expected_kind);
 
-    DropTableStatementPtr parse_drop_table_statement();
-    InsertStatementPtr parse_insert_table_statement();
-
     Value parse_value();
 
     Operand parse_operand();
+    Operation parse_operation();
+    Expression parse_expression();
+
+    InsertStatementPtr parse_insert_table_statement();
+    DeleteStatementPtr parse_delete_statement();
+    DropTableStatementPtr parse_drop_table_statement();
 
     Lexer& lexer_;
 };

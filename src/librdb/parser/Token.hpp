@@ -17,6 +17,8 @@ class Token {
         KwInsert,
         KwInto,
         KwValues,
+        KwDelete,
+        KwWhere,
         Semicolon,
         Comma,
         LParen,
