@@ -68,8 +68,7 @@ std::string_view kind_to_str(const Token::Kind& token_kind) {
 
 std::ostream& operator<<(std::ostream& os, const Token& token) {
     os << kind_to_str(token.type()) << " '" << token.lexema() << "' "
-       << "Loc=" << token.location().cols_ + 1 << ":"
-       << token.location().rows_ + 1;
+       << "Loc=" << token.location().rows_ << ":" << token.location().cols_;
     return os;
 }
 

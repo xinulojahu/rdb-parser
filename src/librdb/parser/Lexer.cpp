@@ -85,7 +85,7 @@ char Lexer::peek_char() const {
 char Lexer::get_char() {
     assert(!eof());
     if (input_[location_.offset_] == '\n') {
-        location_.cols_ = 0;
+        location_.cols_ = 1;
         ++location_.rows_;
     } else {
         ++location_.cols_;

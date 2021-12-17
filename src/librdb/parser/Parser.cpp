@@ -24,8 +24,8 @@ static std::string make_error_msg(std::string_view expected, Token got) {
     return "Expected " + std::string(expected) + ", got " +
            std::string(kind_to_str(got.type())) + " '" +
            std::string(got.lexema()) + "' " +
-           std::to_string(got.location().rows_ + 1) + ":" +
-           std::to_string(got.location().cols_ + 1);
+           std::to_string(got.location().rows_) + ":" +
+           std::to_string(got.location().cols_);
 }
 
 Parser::Result Parser::parse_sql_script() {

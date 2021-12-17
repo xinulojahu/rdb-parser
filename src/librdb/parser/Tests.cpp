@@ -39,13 +39,13 @@ TEST(LexerSuite, PeekGetTest) {
         "Id 'a' Loc=1:1\n"
         "Id 'a' Loc=1:1\n"
         "Id 'a' Loc=1:1\n"
-        "Id 'b' Loc=3:1\n"
-        "Id 'b' Loc=3:1\n"
-        "Id 'c' Loc=5:1\n"
-        "Id 'c' Loc=5:1\n"
-        "Id 'c' Loc=5:1\n"
+        "Id 'b' Loc=1:3\n"
+        "Id 'b' Loc=1:3\n"
+        "Id 'c' Loc=1:5\n"
+        "Id 'c' Loc=1:5\n"
+        "Id 'c' Loc=1:5\n"
         "Id 'd' Loc=2:2\n"
-        "Id 'e' Loc=2:4\n";
+        "Id 'e' Loc=4:2\n";
 
     EXPECT_EQ(expcted_token, tokens.str());
 }
@@ -55,10 +55,10 @@ TEST(LexerSuite, IdTest) {
 
     const std::string expcted_token =
         "Id 'a' Loc=1:1\n"
-        "Id 'b2' Loc=3:1\n"
-        "Id 'aselect' Loc=6:1\n"
-        "Unknown '$' Loc=14:1\n"
-        "Eof '<EOF>' Loc=15:1\n";
+        "Id 'b2' Loc=1:3\n"
+        "Id 'aselect' Loc=1:6\n"
+        "Unknown '$' Loc=1:14\n"
+        "Eof '<EOF>' Loc=1:15\n";
 
     EXPECT_EQ(expcted_token, tokens);
 }
@@ -68,10 +68,10 @@ TEST(LexerSuite, KwTest) {
 
     const std::string expcted_token =
         "KwSelect 'SELECT' Loc=1:1\n"
-        "Id 'value' Loc=8:1\n"
-        "KwFrom 'FROM' Loc=14:1\n"
-        "Id 'table' Loc=19:1\n"
-        "Eof '<EOF>' Loc=24:1\n";
+        "Id 'value' Loc=1:8\n"
+        "KwFrom 'FROM' Loc=1:14\n"
+        "Id 'table' Loc=1:19\n"
+        "Eof '<EOF>' Loc=1:24\n";
 
     EXPECT_EQ(expcted_token, tokens);
 }
@@ -81,12 +81,12 @@ TEST(LexerSuite, IntTest) {
 
     const std::string expcted_token =
         "Int '123' Loc=1:1\n"
-        "Int '-312' Loc=5:1\n"
-        "Int '+0' Loc=10:1\n"
-        "Int '123' Loc=12:1\n"
-        "Unknown '-' Loc=16:1\n"
-        "Id 'k' Loc=17:1\n"
-        "Eof '<EOF>' Loc=18:1\n";
+        "Int '-312' Loc=1:5\n"
+        "Int '+0' Loc=1:10\n"
+        "Int '123' Loc=1:12\n"
+        "Unknown '-' Loc=1:16\n"
+        "Id 'k' Loc=1:17\n"
+        "Eof '<EOF>' Loc=1:18\n";
 
     EXPECT_EQ(expcted_token, tokens);
 }
@@ -96,15 +96,15 @@ TEST(LexerSuite, RealTest) {
 
     const std::string expcted_token =
         "Real '1.' Loc=1:1\n"
-        "Real '-312.123' Loc=4:1\n"
-        "Id 'l2' Loc=12:1\n"
-        "Unknown '.' Loc=14:1\n"
-        "Int '1' Loc=15:1\n"
-        "Real '+0.0123' Loc=17:1\n"
-        "Real '3.5' Loc=25:1\n"
-        "Unknown '.' Loc=28:1\n"
-        "Real '31.3' Loc=29:1\n"
-        "Eof '<EOF>' Loc=33:1\n";
+        "Real '-312.123' Loc=1:4\n"
+        "Id 'l2' Loc=1:12\n"
+        "Unknown '.' Loc=1:14\n"
+        "Int '1' Loc=1:15\n"
+        "Real '+0.0123' Loc=1:17\n"
+        "Real '3.5' Loc=1:25\n"
+        "Unknown '.' Loc=1:28\n"
+        "Real '31.3' Loc=1:29\n"
+        "Eof '<EOF>' Loc=1:33\n";
 
     EXPECT_EQ(expcted_token, tokens);
 }
@@ -120,14 +120,14 @@ TEST(LexerSuite, StringTest) {
 
     const std::string expcted_token =
         "String '\"str1\"' Loc=1:1\n"
-        "Unknown '\"str2' Loc=1:2\n"
-        "Id 'str3' Loc=1:3\n"
-        "Unknown '\"' Loc=5:3\n"
-        "String '\"str4 1231 INSERT 2.1\"' Loc=1:4\n"
-        "Int '1231' Loc=23:4\n"
-        "KwInsert 'INSERT' Loc=28:4\n"
-        "Real '2.1' Loc=35:4\n"
-        "Eof '<EOF>' Loc=1:5\n";
+        "Unknown '\"str2' Loc=2:1\n"
+        "Id 'str3' Loc=3:1\n"
+        "Unknown '\"' Loc=3:5\n"
+        "String '\"str4 1231 INSERT 2.1\"' Loc=4:1\n"
+        "Int '1231' Loc=4:23\n"
+        "KwInsert 'INSERT' Loc=4:28\n"
+        "Real '2.1' Loc=4:35\n"
+        "Eof '<EOF>' Loc=5:1\n";
 
     EXPECT_EQ(expcted_token, tokens);
 }
@@ -145,26 +145,26 @@ TEST(LexerSuite, OperationTest) {
 
     const std::string expcted_token =
         "Lte '<=' Loc=1:1\n"
-        "Rte '>=' Loc=1:2\n"
-        "Neq '!=' Loc=1:3\n"
-        "Lt '<' Loc=1:4\n"
-        "Rt '>' Loc=1:5\n"
-        "Eq '=' Loc=1:6\n"
-        "Unknown '!' Loc=1:7\n"
-        "Lt '<' Loc=1:8\n"
-        "Lt '<' Loc=2:8\n"
-        "Lte '<=' Loc=3:8\n"
-        "Neq '!=' Loc=5:8\n"
-        "Rte '>=' Loc=7:8\n"
-        "Unknown '!' Loc=9:8\n"
-        "Neq '!=' Loc=10:8\n"
-        "Eq '=' Loc=12:8\n"
-        "Eq '=' Loc=13:8\n"
-        "Rt '>' Loc=14:8\n"
-        "Rt '>' Loc=15:8\n"
-        "Unknown '!' Loc=16:8\n"
-        "Rt '>' Loc=17:8\n"
-        "Eof '<EOF>' Loc=1:9\n";
+        "Rte '>=' Loc=2:1\n"
+        "Neq '!=' Loc=3:1\n"
+        "Lt '<' Loc=4:1\n"
+        "Rt '>' Loc=5:1\n"
+        "Eq '=' Loc=6:1\n"
+        "Unknown '!' Loc=7:1\n"
+        "Lt '<' Loc=8:1\n"
+        "Lt '<' Loc=8:2\n"
+        "Lte '<=' Loc=8:3\n"
+        "Neq '!=' Loc=8:5\n"
+        "Rte '>=' Loc=8:7\n"
+        "Unknown '!' Loc=8:9\n"
+        "Neq '!=' Loc=8:10\n"
+        "Eq '=' Loc=8:12\n"
+        "Eq '=' Loc=8:13\n"
+        "Rt '>' Loc=8:14\n"
+        "Rt '>' Loc=8:15\n"
+        "Unknown '!' Loc=8:16\n"
+        "Rt '>' Loc=8:17\n"
+        "Eof '<EOF>' Loc=9:1\n";
 
     EXPECT_EQ(expcted_token, tokens);
 }
@@ -176,19 +176,19 @@ TEST(LexerSuite, OtherTokensTest) {
 
     const std::string expcted_token =
         "Comma ',' Loc=1:1\n"
-        "LParen '(' Loc=2:1\n"
-        "Semicolon ';' Loc=3:1\n"
-        "RParen ')' Loc=4:1\n"
-        "LParen '(' Loc=5:1\n"
-        "LParen '(' Loc=6:1\n"
-        "Semicolon ';' Loc=7:1\n"
-        "Comma ',' Loc=1:2\n"
-        "Comma ',' Loc=3:2\n"
-        "Semicolon ';' Loc=4:2\n"
-        "Comma ',' Loc=5:2\n"
-        "Semicolon ';' Loc=6:2\n"
-        "RParen ')' Loc=7:2\n"
-        "Eof '<EOF>' Loc=1:3\n";
+        "LParen '(' Loc=1:2\n"
+        "Semicolon ';' Loc=1:3\n"
+        "RParen ')' Loc=1:4\n"
+        "LParen '(' Loc=1:5\n"
+        "LParen '(' Loc=1:6\n"
+        "Semicolon ';' Loc=1:7\n"
+        "Comma ',' Loc=2:1\n"
+        "Comma ',' Loc=2:3\n"
+        "Semicolon ';' Loc=2:4\n"
+        "Comma ',' Loc=2:5\n"
+        "Semicolon ';' Loc=2:6\n"
+        "RParen ')' Loc=2:7\n"
+        "Eof '<EOF>' Loc=3:1\n";
 
     EXPECT_EQ(expcted_token, tokens);
 }

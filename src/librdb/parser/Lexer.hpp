@@ -10,7 +10,7 @@ namespace rdb::parser {
 class Lexer {
    public:
     explicit Lexer(std::string_view input)
-        : input_(input), location_(0, 0, 0) {}
+        : input_(input), location_(0, 1, 1) {}
 
     Token get();
     Token peek();
