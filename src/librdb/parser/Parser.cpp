@@ -59,8 +59,10 @@ void Parser::panic() {
 StatementPtr Parser::parse_sql_statement() {
     const Token token = lexer_.peek();
     switch (token.type()) {
+        case Token::Kind::KwSelect:
+            return parse_select_statement();
         case Token::Kind::KwInsert:
-            return parse_insert_table_statement();
+            return parse_insert_statement();
         case Token::Kind::KwDelete:
             return parse_delete_statement();
         case Token::Kind::KwDrop:
@@ -146,7 +148,35 @@ Expression Parser::parse_expression() {
     return expression;
 }
 
-InsertStatementPtr Parser::parse_insert_table_statement() {
+SelectStatementPtr Parser::parse_select_statement() {
+    fetch_token(Token::Kind::KwSelect);
+    std::vector<std::string_view> column_names;
+    const Token first_column_name = fetch_token(Token::Kind::Id);
+    column_names.push_back(first_column_name.lexema());
+
+    while (lexer_.peek().type() != Token::Kind::KwFrom) {
+        const Token next_column_name = fetch_token(Token::Kind::Id);
+        column_names.push_back(next_column_name.lexema());
+    }
+
+    fetch_token(Token::Kind::KwFrom);
+
+    const Token table_name = fetch_token(Token::Kind::Id);
+
+    if (lexer_.peek().type() == Token::Kind::KwWhere) {
+        fetch_token(Token::Kind::KwWhere);
+        const Expression expression = parse_expression();
+        fetch_token(Token::Kind::Semicolon);
+        return std::make_unique<const SelectStatement>(
+            column_names, table_name.lexema(), expression);
+    }
+
+    fetch_token(Token::Kind::Semicolon);
+    return std::make_unique<const SelectStatement>(
+        column_names, table_name.lexema());
+}
+
+InsertStatementPtr Parser::parse_insert_statement() {
     fetch_token(Token::Kind::KwInsert);
     fetch_token(Token::Kind::KwInto);
     const Token table_name = fetch_token(Token::Kind::Id);
@@ -195,6 +225,7 @@ DeleteStatementPtr Parser::parse_delete_statement() {
         return std::make_unique<const DeleteStatement>(
             table_name.lexema(), expression);
     }
+
     fetch_token(Token::Kind::Semicolon);
     return std::make_unique<const DeleteStatement>(table_name.lexema());
 }

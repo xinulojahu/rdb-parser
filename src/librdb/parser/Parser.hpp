@@ -30,7 +30,8 @@ class Parser {
     Operation parse_operation();
     Expression parse_expression();
 
-    InsertStatementPtr parse_insert_table_statement();
+    SelectStatementPtr parse_select_statement();
+    InsertStatementPtr parse_insert_statement();
     DeleteStatementPtr parse_delete_statement();
     DropTableStatementPtr parse_drop_table_statement();
 

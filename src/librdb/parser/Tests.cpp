@@ -213,6 +213,49 @@ std::string get_parser_result(const std::string_view input) {
     return out.str();
 }
 
+TEST(ParserSuite, SelectStatementTest) {
+    const auto parser_result = get_parser_result(
+        "SELECT c1 c2 c3 FROM t;\n"
+        "SELECT c1 c2 FROM t WHERE 123 <= 13;\n"
+        "SELECT c1 FROM t WHERE \"asd\" = id;\n"
+        "SELECT c1 FROM t WHERE \"asd\" != 123;\n"
+        "SELECT c1 FROM t WHERE 123.2 >= 123;\n"
+        "SELECT c1 FROM t WHERE \"asd\" < 123;\n"
+        "SELECT c1 FROM t WHERE id > id2;\n"
+        "SELECT c1 FROM t WHERE;\n"
+        "SELECT c1 FROM t WHERE dd <=;\n"
+        "SELECT c1 FROM t WHERE <= ddd;\n"
+        "SELECT c1 FROM t WHERE t ! ddd;\n"
+        "SELECT c1 FROM t WHERE t <> ddd;\n"
+        "SELEST c1 c2 FROM t WHERE 123 <= 13;\n"
+        "SELECT c1 FROM WHERE t <= ddd;\n"
+        "SELECT c1 t WHERE t <= ddd;\n"
+        "SELECT c1 FROM t <= ddd;\n"
+        "SELECT FROM t WHERE t <= ddd;\n");
+
+    const std::string expected_result =
+        "SELECT c1 c2 c3 FROM t;\n"
+        "SELECT c1 c2 FROM t WHERE 123 <= 13;\n"
+        "SELECT c1 FROM t WHERE \"asd\" = id;\n"
+        "SELECT c1 FROM t WHERE \"asd\" != 123;\n"
+        "SELECT c1 FROM t WHERE 123.199997 >= 123;\n"
+        "SELECT c1 FROM t WHERE \"asd\" < 123;\n"
+        "SELECT c1 FROM t WHERE id > id2;\n"
+        "Expected operand, got Semicolon ';' 8:23\n"
+        "Expected operand, got Semicolon ';' 9:29\n"
+        "Expected operand, got Lte '<=' 10:24\n"
+        "Expected opration, got Unknown '!' 11:26\n"
+        "Expected operand, got Rt '>' 12:27\n"
+        "Expected CREATE, SELECT, INSERT, DELETE or DROP, got Id 'SELEST' "
+        "13:1\n"
+        "Expected Id, got KwWhere 'WHERE' 14:16\n"
+        "Expected Id, got KwWhere 'WHERE' 15:13\n"
+        "Expected Semicolon, got Lte '<=' 16:18\n"
+        "Expected Id, got KwFrom 'FROM' 17:8\n";
+
+    EXPECT_EQ(expected_result, parser_result);
+}
+
 TEST(ParserSuite, InsertStatementTest) {
     const auto parser_result = get_parser_result(
         "INSERT INTO t (n1) VALUES (123);\n"

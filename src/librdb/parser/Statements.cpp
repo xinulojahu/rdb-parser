@@ -50,6 +50,25 @@ static std::string expression_to_str(const Expression& expression) {
            operand_to_str(expression.right_);
 }
 
+std::string SelectStatement::to_string() const {
+    std::stringstream out;
+    out << "SELECT ";
+
+    for (auto column_name : column_names()) {
+        out << column_name << " ";
+    }
+
+    out << "FROM " << table_name();
+
+    if (expression()) {
+        out << " WHERE " << expression_to_str(*expression());
+    }
+
+    out << ";";
+
+    return out.str();
+}
+
 std::string InsertStatement::to_string() const {
     std::stringstream out;
     auto column_name = column_names().begin();
