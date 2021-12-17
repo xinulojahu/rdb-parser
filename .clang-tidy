@@ -12,7 +12,9 @@ Checks: >
   -google-runtime-references,
   -cert-err58-cpp,
   -cppcoreguidelines-avoid-non-const-global-variables,
-  -bugprone-exception-escape
+  -bugprone-exception-escape,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -hicpp-no-array-decay
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

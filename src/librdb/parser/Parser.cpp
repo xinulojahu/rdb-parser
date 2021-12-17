@@ -82,18 +82,15 @@ Token Parser::fetch_token(Token::Kind expected_kind) {
 
 Value Parser::parse_value() {
     const Token token = lexer_.peek();
-    char* end = nullptr;
     const int base = 10;
     if (token.type() == Token::Kind::Int) {
         lexer_.get();
-        Value val = int32_t(std::strtol(token.lexema().data(), &end, base));
-        assert(token.lexema().data() + token.lexema().size() == end);
+        Value val = int32_t(std::strtol(token.lexema().data(), nullptr, base));
         return val;
     }
     if (token.type() == Token::Kind::Real) {
         lexer_.get();
-        Value val = std::strtof(token.lexema().data(), &end);
-        assert(token.lexema().data() + token.lexema().size() == end);
+        Value val = std::strtof(token.lexema().data(), nullptr);
         return val;
     }
     if (token.type() == Token::Kind::String) {
