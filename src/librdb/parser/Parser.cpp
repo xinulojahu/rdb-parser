@@ -20,6 +20,14 @@ class SyntaxError : public std::runtime_error {
 };
 }  // namespace
 
+static std::string make_error_msg(std::string_view expected, Token got) {
+    return "Expected " + std::string(expected) + ", got " +
+           std::string(kind_to_str(got.type())) + " '" +
+           std::string(got.lexema()) + "' " +
+           std::to_string(got.location().rows_ + 1) + ":" +
+           std::to_string(got.location().cols_ + 1);
+}
+
 Parser::Result Parser::parse_sql_script() {
     Parser::Result result;
     while (true) {
@@ -58,15 +66,13 @@ StatementPtr Parser::parse_sql_statement() {
         default:
             break;
     }
-    throw SyntaxError("Expected Drop or Insert");
+    throw SyntaxError(make_error_msg("DROP or INSERT", token));
 }
 
 Token Parser::fetch_token(Token::Kind expected_kind) {
     Token token = lexer_.peek();
     if (token.type() != expected_kind) {
-        throw SyntaxError(
-            "Expeted " + std::string(kind_to_str(expected_kind)) + ", got " +
-            std::string(kind_to_str(token.type())));
+        throw SyntaxError(make_error_msg(kind_to_str(expected_kind), token));
     }
     return lexer_.get();
 }
@@ -108,8 +114,8 @@ InsertStatementPtr Parser::parse_insert_table_statement() {
         const Value next_value = parse_value();
         values.push_back(next_value);
     }
-    fetch_token(Token::Kind::RParen);
 
+    fetch_token(Token::Kind::RParen);
     fetch_token(Token::Kind::Semicolon);
 
     return std::make_unique<const InsertStatement>(
@@ -129,19 +135,17 @@ Value Parser::parse_value() {
     }
     if (token.type() == Token::Kind::Real) {
         lexer_.get();
-        val = std::strtof(lexer_.get().lexema().data(), &end);
+        val = std::strtof(token.lexema().data(), &end);
         assert(token.lexema().data() + token.lexema().size() == end);
         return val;
     }
     if (token.type() == Token::Kind::String) {
         lexer_.get();
-        val = lexer_.get().lexema();
+        val = token.lexema();
         return val;
     }
 
-    throw SyntaxError(
-        "Expeted int, float or string, got " +
-        std::string(kind_to_str(token.type())));
+    throw SyntaxError(make_error_msg("int, rea or string", token));
 }
 
 }  // namespace rdb::parser

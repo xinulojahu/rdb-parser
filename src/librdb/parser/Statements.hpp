@@ -44,8 +44,10 @@ class InsertStatement : public Statement {
           column_names_(column_names),
           values_(values) {}
     std::string_view table_name() const { return table_name_; }
-    std::vector<std::string_view>& column_names() { return column_names_; }
-    std::vector<Value>& values() { return values_; }
+    const std::vector<std::string_view>& column_names() const {
+        return column_names_;
+    }
+    const std::vector<Value>& values() const { return values_; }
 
     std::string to_string() const override;
 

@@ -114,7 +114,7 @@ TEST(LexerSuite, StringTest) {
         "\"str1\"\n"
         "\"str2\n"
         "str3\"\n"
-        "\"str4 1231 INSERT 2.1\" 1231 INSERT 2.1"
+        "\"str4 1231 INSERT 2.1\"1231 INSERT 2.1\n"
 
     );
 
@@ -124,10 +124,34 @@ TEST(LexerSuite, StringTest) {
         "Id 'str3' Loc=1:3\n"
         "Unknown '\"' Loc=5:3\n"
         "String '\"str4 1231 INSERT 2.1\"' Loc=1:4\n"
-        "Int '1231' Loc=24:4\n"
-        "KwInsert 'INSERT' Loc=29:4\n"
-        "Real '2.1' Loc=36:4\n"
-        "Eof '<EOF>' Loc=39:4\n";
+        "Int '1231' Loc=23:4\n"
+        "KwInsert 'INSERT' Loc=28:4\n"
+        "Real '2.1' Loc=35:4\n"
+        "Eof '<EOF>' Loc=1:5\n";
+
+    EXPECT_EQ(expcted_token, tokens);
+}
+
+TEST(LexerSuite, OtherTokensTest) {
+    const auto tokens = get_tokens(
+        ",(;)((;\n"
+        ", ,;,;)\n");
+
+    const std::string expcted_token =
+        "Comma ',' Loc=1:1\n"
+        "LParen '(' Loc=2:1\n"
+        "Semicolon ';' Loc=3:1\n"
+        "RParen ')' Loc=4:1\n"
+        "LParen '(' Loc=5:1\n"
+        "LParen '(' Loc=6:1\n"
+        "Semicolon ';' Loc=7:1\n"
+        "Comma ',' Loc=1:2\n"
+        "Comma ',' Loc=3:2\n"
+        "Semicolon ';' Loc=4:2\n"
+        "Comma ',' Loc=5:2\n"
+        "Semicolon ';' Loc=6:2\n"
+        "RParen ')' Loc=7:2\n"
+        "Eof '<EOF>' Loc=1:3\n";
 
     EXPECT_EQ(expcted_token, tokens);
 }
@@ -152,21 +176,49 @@ std::string get_parser_result(const std::string_view input) {
     return out.str();
 }
 
-TEST(ParserSuite, DropTablesStatementTest) {
+TEST(ParserSuite, DropTableStatementTest) {
     const auto parser_result = get_parser_result(
         "DROP TABLE table;\n"
-        "someword; DROP TABLE table2;\n"
-        "anotherword DROP TABLE table3;\n"
+        "DROP TABLE table2\n;"
+        "DROP TABLE table\n"
+        "someword; DROP TABLE table3;\n"
+        "anotherword DROP TABLE table4;\n"
         "DROP table TABLE;\n"
-        "DROP TABLE 123;\n");
+        "DROP TABLE 123;\n"
+        "DROP;\n"
+        "DROP TABLE;\n"
+        "TABLE;\n");
 
     const std::string expected_result =
-        "DROP TABLE table\n"
-        "DROP TABLE table2\n"
-        "Expected Drop or Insert\n"
-        "Expected Drop or Insert\n"
-        "Expeted KwTable, got Id\n"
-        "Expeted Id, got Int\n";
+        "DROP TABLE table;\n"
+        "DROP TABLE table2;\n"
+        "DROP TABLE table3;\n"
+        "Expected Semicolon, got Id 'someword' 4:1\n"
+        "Expected DROP or INSERT, got Id 'anotherword' 5:1\n"
+        "Expected KwTable, got Id 'table' 6:6\n"
+        "Expected Id, got Int '123' 7:12\n"
+        "Expected KwTable, got Semicolon ';' 8:5\n"
+        "Expected Id, got Semicolon ';' 9:11\n"
+        "Expected DROP or INSERT, got KwTable 'TABLE' 10:1\n";
+    EXPECT_EQ(expected_result, parser_result);
+}
+
+TEST(ParserSuite, InsertStatementTest) {
+    const auto parser_result = get_parser_result(
+        "INSERT INTO t (n1) VALUES (123);\n"
+        "INSERT INTO t (n1, n2, n3) VALUES (12, 0.53, \"str\");\n"
+        "INSERT INTO t VALUES (12);\n"
+        "INSERT INTO (n1) VALUES (12);\n"
+        "INSERT INTO t (n1) VALUES;\n"
+        "INSERT INTO t (n1) (12);\n");
+
+    const std::string expected_result =
+        "INSERT INTO t (n1) VALUES (123);\n"
+        "INSERT INTO t (n1, n2, n3) VALUES (12, 0.530000, \"str\");\n"
+        "Expected LParen, got KwValues 'VALUES' 3:15\n"
+        "Expected Id, got LParen '(' 4:13\n"
+        "Expected LParen, got Semicolon ';' 5:26\n"
+        "Expected KwValues, got LParen '(' 6:20\n";
 
     EXPECT_EQ(expected_result, parser_result);
 }

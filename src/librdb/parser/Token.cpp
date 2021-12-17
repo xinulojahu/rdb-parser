@@ -14,7 +14,7 @@ Location Token::location() const {
     return location_;
 }
 
-std::string_view kind_to_str(Token::Kind token_kind) {
+std::string_view kind_to_str(const Token::Kind& token_kind) {
     switch (token_kind) {
         case Token::Kind::KwSelect:
             return "KwSelect";
