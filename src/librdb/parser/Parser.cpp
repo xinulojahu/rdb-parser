@@ -1,5 +1,6 @@
-#include <librdb/parser/Lexer.hpp>
 #include <librdb/parser/Parser.hpp>
+
+#include <librdb/parser/Lexer.hpp>
 #include <librdb/parser/Statements.hpp>
 
 #include <cassert>
