@@ -40,16 +40,16 @@ class Token {
         Eof,
         Unknown,
     };
-    Token(Kind type, std::string_view lexema, Location location)
-        : type_(type), lexema_(lexema), location_(location) {}
+    Token(Kind type, std::string_view lexeme, Location location)
+        : type_(type), lexeme_(lexeme), location_(location) {}
 
     Kind type() const;
-    std::string_view lexema() const;
+    std::string_view lexeme() const;
     Location location() const;
 
    private:
     Kind type_;
-    std::string_view lexema_;
+    std::string_view lexeme_;
     Location location_;
 };
 
