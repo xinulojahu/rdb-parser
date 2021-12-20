@@ -6,8 +6,8 @@ Token::Kind Token::type() const {
     return type_;
 }
 
-std::string_view Token::lexema() const {
-    return lexema_;
+std::string_view Token::lexeme() const {
+    return lexeme_;
 }
 
 Location Token::location() const {
@@ -79,7 +79,7 @@ std::string_view kind_to_str(const Token::Kind& token_kind) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Token& token) {
-    os << kind_to_str(token.type()) << " '" << token.lexema() << "' "
+    os << kind_to_str(token.type()) << " '" << token.lexeme() << "' "
        << "Loc=" << token.location().rows_ << ":" << token.location().cols_;
     return os;
 }

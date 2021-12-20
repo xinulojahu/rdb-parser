@@ -2,6 +2,7 @@
 
 #include <librdb/parser/Location.hpp>
 #include <librdb/parser/Token.hpp>
+
 #include <optional>
 #include <string_view>
 

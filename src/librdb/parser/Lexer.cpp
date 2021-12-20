@@ -1,7 +1,9 @@
+#include <librdb/parser/Lexer.hpp>
+
+#include <librdb/parser/Token.hpp>
+
 #include <cassert>
 #include <cctype>
-#include <librdb/parser/Lexer.hpp>
-#include <librdb/parser/Token.hpp>
 #include <optional>
 #include <string_view>
 #include <unordered_map>

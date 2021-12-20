@@ -1,11 +1,13 @@
-#include <gtest/gtest.h>
 #include <librdb/parser/Lexer.hpp>
 #include <librdb/parser/Parser.hpp>
+
 #include <memory>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <variant>
+
+#include <gtest/gtest.h>
 
 std::string get_tokens(const std::string_view input) {
     rdb::parser::Lexer lexer(input);

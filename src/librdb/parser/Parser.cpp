@@ -1,5 +1,6 @@
-#include <librdb/parser/Lexer.hpp>
 #include <librdb/parser/Parser.hpp>
+
+#include <librdb/parser/Lexer.hpp>
 #include <librdb/parser/Statements.hpp>
 
 #include <cassert>
@@ -23,7 +24,7 @@ class SyntaxError : public std::runtime_error {
 static std::string make_error_msg(std::string_view expected, Token got) {
     return "Expected " + std::string(expected) + ", got " +
            std::string(kind_to_str(got.type())) + " '" +
-           std::string(got.lexema()) + "' " +
+           std::string(got.lexeme()) + "' " +
            std::to_string(got.location().rows_) + ":" +
            std::to_string(got.location().cols_);
 }
@@ -87,28 +88,24 @@ Token Parser::fetch_token(Token::Kind expected_kind) {
 ColumnDef Parser::parse_column_def() {
     ColumnDef column_def;
     const Token column_name = fetch_token(Token::Kind::Id);
-    column_def.column_name_ = column_name.lexema();
+    column_def.column_name_ = column_name.lexeme();
 
     const Token token = lexer_.peek();
     switch (token.type()) {
-        case Token::Kind::KwInt: {
+        case Token::Kind::KwInt:
             lexer_.get();
             column_def.type_ = ColumnDef::Type::Int;
             return column_def;
-        }
-        case Token::Kind::KwReal: {
+        case Token::Kind::KwReal:
             lexer_.get();
             column_def.type_ = ColumnDef::Type::Real;
             return column_def;
-        }
-        case Token::Kind::KwText: {
+        case Token::Kind::KwText:
             lexer_.get();
             column_def.type_ = ColumnDef::Type::Text;
             return column_def;
-        }
-        default: {
+        default:
             throw SyntaxError(make_error_msg("INT, REAL or TEXT", token));
-        }
     }
 }
 
@@ -119,17 +116,17 @@ Value Parser::parse_value() {
         case Token::Kind::Int: {
             lexer_.get();
             Value val =
-                int32_t(std::strtol(token.lexema().data(), nullptr, base));
+                int32_t(std::strtol(token.lexeme().data(), nullptr, base));
             return val;
         }
         case Token::Kind::Real: {
             lexer_.get();
-            Value val = std::strtof(token.lexema().data(), nullptr);
+            Value val = std::strtof(token.lexeme().data(), nullptr);
             return val;
         }
         case Token::Kind::Text: {
             lexer_.get();
-            Value val = token.lexema();
+            Value val = token.lexeme();
             return val;
         }
         default:
@@ -141,7 +138,7 @@ Expression::Operand Parser::parse_operand() {
     const Token token = lexer_.peek();
     if (token.type() == Token::Kind::Id) {
         lexer_.get();
-        return token.lexema();
+        return token.lexeme();
     }
     switch (token.type()) {
         case Token::Kind::Int:
@@ -203,18 +200,18 @@ CreateTableStatementPtr Parser::parse_create_table_statement() {
     fetch_token(Token::Kind::Semicolon);
 
     return std::make_unique<const CreateTableStatement>(
-        table_name.lexema(), column_defs);
+        table_name.lexeme(), column_defs);
 }
 
 SelectStatementPtr Parser::parse_select_statement() {
     fetch_token(Token::Kind::KwSelect);
     std::vector<std::string_view> column_names;
     const Token first_column_name = fetch_token(Token::Kind::Id);
-    column_names.push_back(first_column_name.lexema());
+    column_names.push_back(first_column_name.lexeme());
 
     while (lexer_.peek().type() != Token::Kind::KwFrom) {
         const Token next_column_name = fetch_token(Token::Kind::Id);
-        column_names.push_back(next_column_name.lexema());
+        column_names.push_back(next_column_name.lexeme());
     }
 
     fetch_token(Token::Kind::KwFrom);
@@ -226,12 +223,12 @@ SelectStatementPtr Parser::parse_select_statement() {
         const Expression expression = parse_expression();
         fetch_token(Token::Kind::Semicolon);
         return std::make_unique<const SelectStatement>(
-            column_names, table_name.lexema(), expression);
+            column_names, table_name.lexeme(), expression);
     }
 
     fetch_token(Token::Kind::Semicolon);
     return std::make_unique<const SelectStatement>(
-        column_names, table_name.lexema());
+        column_names, table_name.lexeme());
 }
 
 InsertStatementPtr Parser::parse_insert_statement() {
@@ -242,12 +239,12 @@ InsertStatementPtr Parser::parse_insert_statement() {
     fetch_token(Token::Kind::LParen);
     std::vector<std::string_view> column_names;
     const Token first_column_name = fetch_token(Token::Kind::Id);
-    column_names.push_back(first_column_name.lexema());
+    column_names.push_back(first_column_name.lexeme());
 
     while (lexer_.peek().type() == Token::Kind::Comma) {
         fetch_token(Token::Kind::Comma);
         const Token next_column_name = fetch_token(Token::Kind::Id);
-        column_names.push_back(next_column_name.lexema());
+        column_names.push_back(next_column_name.lexeme());
     }
 
     fetch_token(Token::Kind::RParen);
@@ -268,7 +265,7 @@ InsertStatementPtr Parser::parse_insert_statement() {
     fetch_token(Token::Kind::Semicolon);
 
     return std::make_unique<const InsertStatement>(
-        table_name.lexema(), column_names, values);
+        table_name.lexeme(), column_names, values);
 }
 
 DeleteStatementPtr Parser::parse_delete_statement() {
@@ -281,11 +278,11 @@ DeleteStatementPtr Parser::parse_delete_statement() {
         const Expression expression = parse_expression();
         fetch_token(Token::Kind::Semicolon);
         return std::make_unique<const DeleteStatement>(
-            table_name.lexema(), expression);
+            table_name.lexeme(), expression);
     }
 
     fetch_token(Token::Kind::Semicolon);
-    return std::make_unique<const DeleteStatement>(table_name.lexema());
+    return std::make_unique<const DeleteStatement>(table_name.lexeme());
 }
 
 DropTableStatementPtr Parser::parse_drop_table_statement() {
@@ -293,7 +290,7 @@ DropTableStatementPtr Parser::parse_drop_table_statement() {
     fetch_token(Token::Kind::KwTable);
     const Token table_name = fetch_token(Token::Kind::Id);
     fetch_token(Token::Kind::Semicolon);
-    return std::make_unique<const DropTableStatement>(table_name.lexema());
+    return std::make_unique<const DropTableStatement>(table_name.lexeme());
 }
 
 }  // namespace rdb::parser

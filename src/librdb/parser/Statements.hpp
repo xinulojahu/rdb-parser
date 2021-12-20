@@ -48,9 +48,9 @@ using StatementPtr = std::unique_ptr<const Statement>;
 
 class CreateTableStatement : public Statement {
    public:
-    explicit CreateTableStatement(
+    CreateTableStatement(
         const std::string_view table_name,
-        const std::vector<ColumnDef> column_defs)
+        const std::vector<ColumnDef>& column_defs)
         : table_name_(table_name), column_defs_(column_defs) {}
 
     std::string_view table_name() const { return table_name_; }
@@ -68,7 +68,7 @@ using CreateTableStatementPtr = std::unique_ptr<const CreateTableStatement>;
 
 class SelectStatement : public Statement {
    public:
-    explicit SelectStatement(
+    SelectStatement(
         const std::vector<std::string_view>& column_names,
         const std::string_view table_name,
         const std::optional<Expression> expression = std::nullopt)
@@ -96,7 +96,7 @@ using SelectStatementPtr = std::unique_ptr<const SelectStatement>;
 
 class InsertStatement : public Statement {
    public:
-    explicit InsertStatement(
+    InsertStatement(
         const std::string_view table_name,
         const std::vector<std::string_view>& column_names,
         const std::vector<Value>& values)
