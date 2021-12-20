@@ -91,24 +91,20 @@ ColumnDef Parser::parse_column_def() {
 
     const Token token = lexer_.peek();
     switch (token.type()) {
-        case Token::Kind::KwInt: {
+        case Token::Kind::KwInt:
             lexer_.get();
             column_def.type_ = ColumnDef::Type::Int;
             return column_def;
-        }
-        case Token::Kind::KwReal: {
+        case Token::Kind::KwReal:
             lexer_.get();
             column_def.type_ = ColumnDef::Type::Real;
             return column_def;
-        }
-        case Token::Kind::KwText: {
+        case Token::Kind::KwText:
             lexer_.get();
             column_def.type_ = ColumnDef::Type::Text;
             return column_def;
-        }
-        default: {
+        default:
             throw SyntaxError(make_error_msg("INT, REAL or TEXT", token));
-        }
     }
 }
 
